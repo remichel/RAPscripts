@@ -1,0 +1,488 @@
+---
+title: "Main - 5.1 - FFT Analysis Amplitude"
+author: "René Michel"
+date: "August 2020"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+    theme: united
+---
+
+Each analysis step will produce a markdown html documentation. Code chunks will be hidden to keep the output readable. Thus, you can either knit the whole document using the "knit" button to run the whole script at once and directly see the output, or use the "play" buttons in the right upper corner of each code chunk to run the analysis step by step within RStudio.
+
+```{r clear environment, include = FALSE}
+# clear environment
+rm(list = ls())
+cat("\014")
+```
+
+```{r installations, include = FALSE}
+
+# tested with 
+
+# R 3.6.1 (you can check your r version with R.Version()$version.string)
+# win10-x64
+# RStudio 1.2.1335
+
+# installs devtools if not found on machine, needed to install packages from github
+if(!("devtools" %in% installed.packages()[,"Package"])) install.packages('devtools')
+library('devtools')
+# will install required dependencies for RAP analysis
+devtools::install_github('remichel/envRAP') 
+# initialize all required packages
+rmTools::libraries(ggplot2, reshape2, pracma, Rmisc, circular, scales, R.matlab, dplyr, stats, lattice, car, rmTools, knitr, kableExtra) 
+```
+
+## Specifications
+
+### General
+
+```{r specifications}
+subject_list        = c(1:10,12:15)
+n_soa               = 20 
+do_createdirs       = T     # if T, script checks for directories and creates them if necessary
+do_save             = T     # T if you want to save files. might overwrite existing datafiles
+do_skip_load        = T     # load merged mm file directly
+do_skip_fft         = T     # loaf fft output directly
+```
+
+### FFT Specifications
+
+```{r fft specs}
+# FFT specifications
+sfreq               = 1000*1/(233.4-191.7) # in Hz
+desired_res         = 1.2 # in Hz
+desired_out         = 'amp'
+outphase            = T 
+padding             = 'none'
+detrend             = 'linear'
+window              = 'none'
+scaling             = 'z'
+```
+
+### Permutation Test Specifications
+
+```{r test specs}
+alphalevel          = .95 # family-wise alphalevel
+mcc_ntests          = 20 # number of tests to correct for (Bonferroni)
+```
+
+```{r paths, include = FALSE}
+study_path          = 'Z:/René/RATES/RAP_OSF/'
+preprocessed_path   = paste0(study_path,'Preprocessed/') 
+mm_out_path         = paste0(study_path,'MM_Out_Labserver/') 
+fft_out_path        = paste0(study_path,'FFT_Out/')  
+plot_path           = paste0(study_path,'Plots3/')
+if(do_createdirs) create_dirs(fft_out_path, plot_path) # checks for paths and creates them if missing
+```
+
+
+```{r load data, include = F}
+
+# in files
+MMfileEnd           = "_mm.txt"
+NamesFileName       = '_mm_names.R'
+# out files
+MMpermEnd           = "_mm_perm.txt"
+Outname_Data        = "mm_data.Rdata"
+Outname_Perm        = "mm_perm.Rdata"
+Outname_All         = "mm_all.Rdata"
+Outname_Amp_Wide    = "mm_amp_wide.Rdata"
+Outname_Amp_Long    = "mm_amp_long.Rdata"
+Outname_GA_SD       = "mm_ga_sd.Rdata"
+
+
+# check whether merged file shall be loaded
+if(do_skip_load){
+  loadStatus = !file.exists(paste0(mm_out_path, Outname_All))
+  if(!loadStatus) load(paste0(mm_out_path, Outname_All))
+}else{
+  loadStatus = T
+}
+
+
+if(loadStatus){
+  # load real data 
+  for (iSub in subject_list){
+    if(iSub == min(subject_list)){
+      data = read.table(paste0(mm_out_path,iSub,MMfileEnd), h=T)
+      load(paste0(preprocessed_path,iSub,NamesFileName))
+      conds = as.data.frame(t(matrix(unlist(strsplit(names,'_')),2,2*n_soa)))
+      subj = rep(iSub,length(data[,1]))
+      data = cbind(subj,conds,data)
+    }else{
+      tmp = read.table(paste0(mm_out_path,iSub,MMfileEnd), h=T)
+      load(paste0(preprocessed_path,iSub,NamesFileName))
+      conds = as.data.frame(t(matrix(unlist(strsplit(names,'_')),2,2*n_soa)))
+      subj = rep(iSub,length(tmp[,1]))
+      tmp = cbind(subj,conds,tmp)
+      data = rbind(data,tmp)
+    }
+    if(iSub == max(subject_list)){
+      colnames(data)[2:3] = c('validity','soa')
+      data$permNum = 0
+      rm(tmp, subj, conds)
+    }
+  }
+
+
+
+  # load permuted data
+  for (iSub in subject_list){
+    if(iSub == min(subject_list)){
+      perm = read.table(paste0(mm_out_path,iSub,MMpermEnd), h=T)
+      n_perm = length(perm[,1])/(n_soa*2)
+      load(paste0(preprocessed_path,iSub,NamesFileName))
+      conds = as.data.frame(t(matrix(unlist(strsplit(names,'_')),2,2*n_soa)))
+      subj = rep(iSub,length(perm[,1]))
+      permNum = sort(rep(c(1:n_perm),2*n_soa))
+      cond = rep_dataframe(conds,n_perm,by = 'rbind')
+      perm = cbind(subj,cond,perm,permNum)
+    }else{
+      tmp = read.table(paste0(mm_out_path,iSub,MMpermEnd), h=T)
+      n_perm = length(tmp[,1])/(n_soa*2)
+      load(paste0(preprocessed_path,iSub,NamesFileName))
+      conds = as.data.frame(t(matrix(unlist(strsplit(names,'_')),2,2*n_soa)))
+      subj = rep(iSub,length(tmp[,1]))
+      permNum = sort(rep(c(1:n_perm),2*n_soa))
+      cond = rep_dataframe(conds,n_perm,by = 'rbind')
+      tmp = cbind(subj,cond,tmp,permNum)
+      # concatenate
+      perm = rbind(perm,tmp)
+    }
+    if(iSub == max(subject_list)){
+      colnames(perm)[2:3] = c('validity','soa')
+      rm(tmp, subj, cond, conds, permNum)
+    }
+    
+  }
+  
+  # save dataframes
+  if(do_save) save(perm,file = paste0(mm_out_path,Outname_Perm))
+  if(do_save) save(data,file = paste0(mm_out_path,Outname_Data))
+  
+  # concatenat
+  data = rbind(data,perm)
+  rm(perm)
+  if(do_save) save(data,file = paste0(mm_out_path,Outname_All))
+}
+
+```
+
+
+```{r prepare for fft, include = F}
+
+# check whether FFT shall be performed or not
+if(do_skip_fft){
+  doFFT = !(file.exists(paste0(fft_out_path,Outname_Amp_Long)) & file.exists(paste0(fft_out_path,Outname_GA_SD)))
+  if(!doFFT) load(paste0(fft_out_path,Outname_Amp_Long))
+  if(!doFFT) load(paste0(fft_out_path,Outname_GA_SD))
+}else{
+  doFFT = T
+}
+
+if(doFFT){
+  
+  # rename variable for Rmisc functions
+  data$mmsd = data$sd
+  
+  # Average across participants
+  averageTC_sd = summarySE(data, measurevar = 'mmsd', groupvars = c('permNum','validity', 'soa'), conf.interval = .95)
+  averageTC_g = summarySE(data, measurevar = 'g', groupvars = c('permNum','validity', 'soa'), conf.interval = .95)
+  
+    
+  # Reshape and concatenate
+  sd      = dcast(averageTC_sd, permNum + validity ~ soa, value.var = "mmsd")
+  sd$var  = 'sd'
+  g       = dcast(averageTC_g, permNum + validity ~ soa, value.var = "g")
+  g$var   = 'g'
+  averageWide    = rbind(sd,g)
+  averageWide    = averageWide[moveme(names(averageWide),'var first')] # rearrange dataframe, bring id.vars to front of dataframe
+  if(do_save) save(averageTC_sd,file = paste0(fft_out_path,Outname_GA_SD))
+}
+
+```
+
+```{r fft, include = F}
+
+# check whether FFT shall be performed or not
+if(do_skip_fft){
+  doFFT = !file.exists(paste0(fft_out_path,Outname_Amp_Long))
+  if(!doFFT) load(paste0(fft_out_path,Outname_Amp_Long))
+  if(!doFFT) load(paste0(fft_out_path,Outname_GA_SD))
+}else{
+  doFFT = T
+}
+
+if(doFFT){
+  
+  firstLine = 4 # indicate first line of data in dataframe
+    
+  # Extract Amplitude
+  amp = dsa_fft(averageWide[firstLine:dim(averageWide)[2]], 
+                time = 'col', 
+                detrend = detrend, 
+                window = window, 
+                scaling = scaling , 
+                padding = padding, 
+                desired_res = desired_res, 
+                sfreq = sfreq, 
+                desired_out = desired_out, 
+                single_sided = T, 
+                out = 'mod', # define amplitude as output
+                alpha = alpha, 
+                verbose = T )
+  
+  # Concatenate with identifier vars again and save wideformat
+  amp = cbind(averageWide[1:(firstLine-1)], amp)
+  if(do_save) save(amp,file = paste0(fft_out_path,Outname_Amp_Wide))
+  
+  # Reshape to longformat for ggplot
+  amp_long = melt(amp, id.vars = c('permNum','validity','var'), variable.name = 'freq', value.name = 'amplitude')
+  if(do_save) save(amp_long,file = paste0(fft_out_path,Outname_Amp_Long))
+}
+
+```
+
+```{r perm test, include = F}
+
+perms_long    = subset(amp_long,amp_long$permNum > 0)
+amp_long      = subset(amp_long,amp_long$permNum == 0)
+
+
+# reshape permutations to wideformat
+perms_wide = dcast(perms_long, validity + var + freq ~ permNum, value.var = "amplitude")
+# sort datasets in same way to concatenate them later on
+amp_long    = arrange(amp_long, validity, var, freq)
+perms_wide  = arrange(perms_wide, validity, var, freq)
+
+# identify threshold amplitudes for .95 quantile
+firstLine = 4 # indicate first line of data in dataframe
+amp_long$thres = apply(perms_wide[,firstLine:dim(perms_wide)[2]],1, quantile, probs = alphalevel)
+
+# compute p values for observed amplitudes
+for(i in 1:dim(perms_wide)[1]){
+  amp_long$p[i] = length(which(perms_wide[i,firstLine:dim(perms_wide)[2]] > amp_long$amplitude[i]))/length(perms_wide[1,firstLine:dim(perms_wide)[2]])
+}
+
+# identify threshold amplitudes for Bonferroni corrected alphalevel
+amp_long$thres_bonf = apply(perms_wide[,firstLine:dim(perms_wide)[2]],1,quantile, probs = 1-(1-alphalevel)/mcc_ntests)
+  
+```
+
+## Permutation test results 
+
+```{r perm test results, echo = F}
+
+results = amp_long[!(colnames(amp_long) %in% c("permNum", "amplitude", "thres", "thres_bonf"))]
+results$freq = round(fac2num(results$freq),1)
+results$sig = ifelse(results$p < (1-alphalevel), "*", "")
+results$sig_after_bonf = ifelse(results$p < (1-alphalevel)/mcc_ntests, "*", "")
+
+knitr::kable(results) %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+  scroll_box(width = "100%")
+```
+
+## Amplitude Spectrum
+
+```{r plot spectrum, echo = F, out.width = '100%'}
+
+# bring into longformat
+thres = melt(amp_long, id.vars = c('validity','var','freq', 'amplitude'), variable.name = 'method', value.name = 'thres')
+# exclude unwanted vars
+thres = thres[thres$method != "p" &  thres$method != "permNum",]
+
+# prepare for plot
+thres$freq = fac2num(thres$freq)
+  
+xlabels = rep('',length(unique(thres$freq)))
+xlabels[seq(1,length(xlabels),2)] = round(unique(thres$freq)[seq(1,length(xlabels),2)],1)
+
+  
+  
+  
+amp_plot = ggplot(data = thres, aes(x = freq, y = amplitude, group = validity))+
+  facet_wrap(~var, ncol = 2)+
+  geom_ribbon(data = thres[thres$method == "thres_bonf",], aes(ymin = 0, ymax = thres,fill = validity), alpha =.2)+ # ribbon for bonferroni
+  geom_ribbon(data = thres[thres$method == 'thres',], aes(ymin = 0, ymax = thres,fill = validity), alpha =.3)+ # ribbon for.95 quantile
+  geom_line(aes(color = validity), size = 12)+
+  scale_x_continuous(breaks = unique(thres$freq), labels = xlabels, expand = c(0,0))+
+  scale_y_continuous(limits = c(0,13), breaks = seq(0,12,2),expand = c(0,0))+
+  scale_color_manual(values=c("sienna2", "dodgerblue2"),breaks = levels(thres$validity))+  #rev(levels(thres$validity))
+  scale_fill_manual(values=c("sienna2", "dodgerblue2"),breaks = levels(thres$validity))+
+  xlab('Frequency')+
+  ylab('Amplitude (AU)')+
+  theme_light()
+  
+  
+# add significance asterics
+if(any(amp_long$amplitude > amp_long$thres_bonf)){
+  amp_long$sig = NA
+  amp_long$sig[which(amp_long$amplitude > amp_long$thres_bonf)] = '*'
+  asterics = na.omit(amp_long)
+  asterics$amplitude = asterics$amplitude*1.05
+  asterics$freq = fac2num(asterics$freq)
+  amp_plot = amp_plot  + geom_text(data = asterics, aes(label = sig), size = 22)
+  amp_plot
+}else{
+  amp_plot
+}
+
+
+```
+
+```{r save amp plot, include = F}
+
+amp_plot + 
+  theme(strip.text = element_text(colour = "black", size = 18, face = 'bold'),
+        strip.text.x = element_text(size = 30),
+        strip.background = element_rect(color = 'black', size =2.2),
+        panel.border = element_rect(color = "black", fill = NA, size = 2.2),
+        panel.spacing = unit(.8, "cm"),
+        axis.line = element_line(colour = 'black', size = 2.2),
+        axis.ticks = element_line(colour = "black", size = 2.2),
+        axis.ticks.length = unit(.4, "cm"),
+        axis.title.y = element_text(size = 40, face = 'bold',margin = margin(t = 0, r = 30, b = 0, l = 0)),
+        axis.title.x = element_text(size = 40,face = 'bold', margin = margin(t = 40, r = 0, b = 0, l = 0)),
+        axis.text.y = element_text(size = 30,face = 'bold', margin = margin(t = , r = 12, b = 0, l = 0), color = 'black'),
+        axis.text.x = element_text(size = 28,face = 'bold', margin = margin(t = 12, r = 0, b = 0, l = 0), color = 'black'),
+        legend.key.width = unit(3, 'cm'), 
+        legend.text = element_text(size = 28,face = 'bold'),
+        legend.title = element_blank(),
+        legend.key.size = unit(18,"point"),
+        legend.position = c(.15,.9),
+        legend.background = element_rect(color = 'black', size = 1.5, fill = "white"),
+        legend.spacing.x = unit(.5,"cm"))
+  
+
+if(do_save) ggsave(filename = paste0(plot_path,'main_mm_spectrum.png'), device = "png", height = 32, width = 40, units = "cm")
+if(do_save) ggsave(filename = paste0(plot_path,'main_mm_spectrum.pdf'), device = "pdf", height = 32, width = 40, units = "cm")
+
+```
+
+## Permutation test (for significant peak)
+
+```{r plot perm test, echo = F, out.width = '100%'}
+
+# which condition is significant?
+signif = which(amp_long$amplitude > amp_long$thres_bonf)
+
+# Extract significant combination
+sig_freq      = amp_long$freq[signif]
+sig_validity  = amp_long$validity[signif]
+sig_var       = amp_long$var[signif]
+
+# Subset to significant condition and concatenate
+sig_line  = amp_long[amp_long$var == sig_var & amp_long$validity == sig_validity & amp_long$freq == sig_freq,]
+distr     = perms_long[perms_long$var == sig_var & perms_long$validity == sig_validity & perms_long$freq == sig_freq,]
+plotdata  = rbind(sig_line[,1:dim(distr)[2]], distr)
+
+# Plot
+permplot = ggplot(data = plotdata[plotdata$permNum > 0,], aes(x = amplitude))+
+  geom_histogram(binwidth = .15, fill = "sienna2", alpha = .5)+
+  geom_vline(xintercept = sig_line$thres, size = 4, color = 'grey10', linetype = 'dashed')+
+  geom_vline(xintercept = sig_line$thres_bonf, size = 4, color = 'grey70', linetype = 'dashed')+
+  geom_vline(xintercept = sig_line$amplitude, size = 4, color = "sienna2", linetype = "solid")+
+  scale_x_continuous(breaks = seq(0,12,2),expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0))+
+  xlab("Amplitude (AU)")+
+  ylab("Number of Permutations")+
+  theme_classic()
+
+permplot
+```
+
+```{r save perm plot, include = F}
+  
+permplot+
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 3),
+        axis.line = element_line(colour = 'black', size = 3),
+        axis.ticks = element_line(colour = "black", size = 3),
+        axis.ticks.length = unit(.6, "cm"),
+        axis.title.y = element_text(size = 54, face = 'bold',margin = margin(t = 0, r = 20, b = 0, l = 0)),
+        axis.title.x = element_text(size = 54,face = 'bold', margin = margin(t = 30, r = 0, b = 0, l = 0)),
+        axis.text.y = element_text(size = 44,face = 'bold', margin = margin(t = , r = 12, b = 0, l = 0), color = 'black'),
+        axis.text.x = element_text(size = 44,face = 'bold', margin = margin(t = 12, r = 0, b = 0, l = 0), color = 'black'),
+        legend.title = element_blank(),
+        legend.key.size = unit(18,"point"),
+        legend.position = "top",
+        legend.direction = "horizontal",
+        legend.spacing.x = unit(.5,"cm"))
+
+if(do_save) ggsave(filename = paste0(plot_path,'main_mm_sd_permtest.png'), device = "png", height = 40, width = 40, units = "cm")
+if(do_save) ggsave(filename = paste0(plot_path,'main_mm_sd_permtest.pdf'), device = "pdf", height = 40, width = 40, units = "cm")
+
+```
+
+## Sinusoidal fit plot
+
+```{r sinusoid fit, echo = F, out.width = '100%'}
+
+# time vectors
+t         = fac2num(unique(data$soa)) # discrete for observed data
+time      =  c(min(t):max(t)) # continuous for predictions
+
+# detrend observed values
+obs_dat   = detrend(averageTC_sd$mmsd[averageTC_sd$permNum == 0 & averageTC_sd$validity == sig_validity])
+obs_se    = averageTC_sd$se[averageTC_sd$permNum == 0 & averageTC_sd$validity == sig_validity] # we need SEs for plot again
+
+# concatenate & reshape detrended data for plotting
+plotdat   = as.data.frame(cbind(t, obs_dat, obs_se))
+colnames(plotdat) = c("t", "obs_dat", "obs_se")
+plotdat   = melt(plotdat, id.vars = c('t', 'obs_se'), variable.name = 'type', value.name = "sd")
+
+# fit sinusoid with fixed frequency
+freqms    = fac2num(sig_freq)/1000 # define fixed frequency
+fit       = lm(obs_dat ~ sin(2*pi*freqms*t) + cos(2*pi*freqms*t)) # fitting
+pred_dat  = fit$coefficients[1] + fit$coefficients[2]*sin(2*pi*freqms*time) + fit$coefficients[3]*cos(2*pi*freqms*time) # predictions
+
+# concatenate & reshape predicted data for plotting
+plotpred  = as.data.frame(cbind(time, pred_dat))
+colnames(plotpred) = c("time", "pred_dat")
+plotpred   = melt(plotpred, id.vars = c('time'), variable.name = 'type', value.name = "sd")
+
+
+# define labels
+labels = rep("",length(t))
+labels[seq(1,length(t),2)] = round(unique(t))[seq(1,length(t),2)]
+
+osc_plot = ggplot(plotdat[plotdat$type == "obs_dat",], aes(x = t, y = sd))+
+  geom_errorbar(aes(ymin = sd-obs_se, ymax = sd+obs_se), color = "sienna2",size = 1.5, width = 6, alpha = 1) + 
+  geom_line(aes(color = "sienna2"), size = 5, alpha =1)+
+  geom_point(size = 12, color = "sienna2", stroke = 2) + 
+  geom_line(data = plotpred[plotpred$type == "pred_dat",], aes(x = time, y = sd, color = "black"), size = 7, alpha = 1)+
+  scale_y_continuous()+ 
+  scale_x_continuous(breaks = t, labels = labels)+
+  scale_color_manual(values=c("black","sienna2"),labels = c("fitted 9.6 Hz oscillation","observed data"))+
+  xlab('time in ms')+
+  ylab('sd (detrended)')+
+  theme_classic()
+
+osc_plot
+
+```
+
+
+```{r save osc plot, include = F}
+osc_plot + theme(axis.line = element_line(colour = 'black', size = 2.2),
+        axis.ticks = element_line(colour = "black", size = 2.2),
+        axis.ticks.length = unit(.4, "cm"),
+        panel.border = element_rect(color = "black", fill = NA, size = 2.4),
+        axis.title.y = element_text(size = 40, face = 'bold',margin = margin(t = 0, r = 30, b = 0, l = 0)),
+        axis.title.x = element_text(size = 40,face = 'bold', margin = margin(t = 40, r = 0, b = 0, l = 0)),
+        axis.text.y = element_text(size = 30,face = 'bold', margin = margin(t = , r = 12, b = 0, l = 0), color = 'black'),
+        axis.text.x = element_text(size = 28,face = 'bold', margin = margin(t = 12, r = 0, b = 0, l = 0), color = 'black'),
+        legend.text = element_text(size = 28,face = 'bold'),
+        legend.title = element_blank(),
+        legend.background = element_rect(color = "black", size = 1.2),
+        legend.key.size = unit(18,"point"),
+        legend.position = c(.17,.11),
+        legend.spacing.x = unit(.5,"cm"))
+
+if(do_save) ggsave(filename = paste0(plot_path,'main_mm_sd_sinusoidal_fit.png'), device = "png", height = 20, width = 50, units = "cm")
+if(do_save) ggsave(filename = paste0(plot_path,'main_mm_sd_sinusoidal_fit.pdf'), device = "pdf", height = 20, width = 50, units = "cm")
+```
+  
