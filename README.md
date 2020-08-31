@@ -27,7 +27,9 @@ By default, running an analysis step will overwrite the presaved data. In each s
 *Matlab R2020a*
 
 ```
-import version from labserver here
+MATLAB Version: 9.8.0.1323502 (R2020a)
+Operating System: Linux 4.4.0-186-generic #216-Ubuntu SMP Wed Jul 1 05:34:05 UTC 2020 x86_64
+Java Version: Java 1.8.0_202-b08 with Oracle Corporation Java HotSpot(TM) 64-Bit Server VM mixed mode
 ```
 
 #### 1.2. R
@@ -55,7 +57,7 @@ nickname        Action of the Toes
 ### 2. Get the data
 
 
-Please make sure that you download the data from [OSF](https://www.dummylinkforosfrepo.com).
+Please make sure that you download the data from [OSF](https://osf.io/de4bu/).
 
 
 ### 3. Download MemToolbox & helper functions
