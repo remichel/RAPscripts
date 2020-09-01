@@ -70,11 +70,11 @@ mcc_ntests          = 10 # number of tests to correct for (Bonferroni)
 ```
 
 ```{r paths, include = FALSE}
-study_path          = 'Z:/René/RATES/RAP_OSF/'
+study_path          = 'Z:/René/RATES/OSF_public/Main/'
 preprocessed_path   = paste0(study_path,'Preprocessed/') 
-mm_out_path         = paste0(study_path,'MM_Out_Labserver/') 
+mm_out_path         = paste0(study_path,'MM_Out/') 
 fft_out_path        = paste0(study_path,'FFT_Out/')  
-plot_path           = paste0(study_path,'Plots3/')
+plot_path           = paste0(study_path,'Plots/')
 if(do_createdirs) create_dirs(fft_out_path, plot_path) # checks for paths and creates them if missing
 ```
 

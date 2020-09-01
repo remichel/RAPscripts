@@ -61,7 +61,7 @@ scaling             = 'z'
 ```
 
 ```{r paths, include = FALSE}
-study_path          = 'C:/Data/OSF_public/Main/'
+study_path          = 'Z:/René/RATES/OSF_public/Main/'
 preprocessed_path   = paste0(study_path,'Preprocessed/') 
 mm_out_path         = paste0(study_path,'MM_Out/') 
 fft_out_path        = paste0(study_path,'FFT_Out/')  
@@ -76,7 +76,7 @@ if(do_createdirs) create_dirs(fft_out_path, plot_path) # checks for paths and cr
 MMfileEnd           = "_mm_acrossval.txt"
 NamesFileName       = '_mm_names_acrossval.R'
 # out files
-MMpermEnd           = "_mm_acrossval_perm.txt"#"_mm_perm_acrossval.txt"
+MMpermEnd           = "_mm_perm_acrossval.txt"
 Outname_Data        = "mm_data_acrossval.Rdata"
 Outname_Phase_Wide  = "mm_acrossval_phase_wide.Rdata"
 Outname_Phase_Long  = "mm_acrossval_phase_long.Rdata"

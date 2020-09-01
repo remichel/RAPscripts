@@ -71,7 +71,7 @@ mcc_ntests          = 10 # number of tests to correct for (Bonferroni)
 ```
 
 ```{r paths, include = FALSE}
-study_path          = 'C:/Data/OSF_public/Main/'
+study_path          = 'Z:/René/RATES/OSF_public/Main/'
 preprocessed_path   = paste0(study_path,'Preprocessed/') 
 mm_out_path         = paste0(study_path,'MM_Out/') 
 fft_out_path        = paste0(study_path,'FFT_Out/')  
@@ -86,7 +86,7 @@ if(do_createdirs) create_dirs(fft_out_path, plot_path) # checks for paths and cr
 MMfileEnd           = "_mm_acrossval.txt"
 NamesFileName       = '_mm_names_acrossval.R'
 # out files
-MMpermEnd           = "_mm_acrossval_perm.txt"#"_mm_perm_acrossval.txt"
+MMpermEnd           = "_mm_perm_acrossval.txt"#"_mm_perm_acrossval.txt"
 Outname_Data        = "mm_data_acrossval.Rdata"
 Outname_Perm        = "mm_perm_acrossval.Rdata"
 Outname_All         = "mm_acrossval_all.Rdata"
@@ -310,8 +310,8 @@ xlabels[seq(1,length(xlabels),2)] = round(unique(thres$freq)[seq(1,length(xlabel
   
 amp_plot = ggplot(data = thres, aes(x = freq, y = amplitude))+
   facet_wrap(~var, ncol = 2)+
-  geom_ribbon(data = thres[thres$method == "thres_bonf",], aes(ymin = 0, ymax = thres), fill = "grey80", alpha =.2)+ # ribbon for bonferroni
-  geom_ribbon(data = thres[thres$method == 'thres',], aes(ymin = 0, ymax = thres), fill = "grey40" , alpha =.3)+ # ribbon for.95 quantile
+  geom_ribbon(data = thres[thres$method == "thres_bonf",], aes(ymin = 0, ymax = thres), fill = "grey80", alpha =.6)+ # ribbon for bonferroni
+  geom_ribbon(data = thres[thres$method == 'thres',], aes(ymin = 0, ymax = thres), fill = "grey40" , alpha =.7)+ # ribbon for.95 quantile
   geom_line(size = 12)+
   scale_x_continuous(breaks = unique(thres$freq), labels = xlabels, expand = c(0,0))+
   scale_y_continuous(limits = c(0,13), breaks = seq(0,12,2),expand = c(0,0))+

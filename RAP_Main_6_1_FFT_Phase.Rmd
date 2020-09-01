@@ -62,7 +62,7 @@ scaling             = 'z'
 ```
 
 ```{r paths, include = FALSE}
-study_path          = 'C:/Data/OSF_public/Main/'
+study_path          = 'Z:/René/RATES/OSF_public/Main/'
 preprocessed_path   = paste0(study_path,'Preprocessed/') 
 mm_out_path         = paste0(study_path,'MM_Out/') 
 fft_out_path        = paste0(study_path,'FFT_Out/')  
