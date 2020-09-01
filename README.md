@@ -2,7 +2,7 @@
 # Reproduce RAP Results Pipeline
 
 
-This repository contains all analysis scripts to reproduce the reported findings and figures. The corresponding data is stored at [the corresponding OSF repository](https://www.dummylinkforosfrepo.com). 
+This repository contains all analysis scripts to reproduce the reported findings and figures. The corresponding data is stored at [the corresponding OSF repository](https://osf.io/de4bu/). 
 
 
 ## General structure 
