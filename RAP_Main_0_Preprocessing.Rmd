@@ -55,11 +55,11 @@ exclude_1st_session = T    # exclude practice session?
 ```
 
 ```{r paths, include = FALSE}
-study_path          = 'C:/Data/Main/'
+study_path          = 'Z:/René/RATES/OSF_public/Main/'
 data_path           = paste0(study_path,'Logfiles/')
 plot_path           = paste0(study_path,'Plots/')
 subject_paths       = paste0(data_path,subject_list,'/')
-preprocessed_path   = paste0(study_path,'Preprocessed10/')
+preprocessed_path   = paste0(study_path,'Preprocessed/')
 if(do_createdirs) create_dirs(preprocessed_path, plot_path) # checks for paths and creates them if missing
 ```
 
@@ -107,6 +107,35 @@ if(exclude_1st_session == T){
   data      = subset(data,data$mode > 1 & data$abort == "VALID")
 }
 ```
+
+
+```{r statistics about lost fixations, echo = FALSE}
+# Statistics about lost fixations
+
+if(exclude_1st_session == T){
+  abort     = subset(raw, raw$mode > 1 & raw$session > 1)
+}else{
+  abort     = subset(raw, raw$mode > 1)
+}
+
+# calculate n of broken fixations per subject
+abort_long = abort %>% group_by(subject, abort) %>% tally()
+abort_long = abort_long[abort_long$abort == "FIXLOST",]
+
+# calculate n of trials per subject
+abort_n = abort %>% group_by(subject) %>% tally()
+abort_long$trials = abort_n$n
+
+# calculate percentage of broken fixation
+abort_long$perc = abort_long$n/abort_long$trials*100
+
+knitr::kable(abort_long) %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+  scroll_box(width = "100%")
+
+disp(paste('Percentage of broken fixations: M =' , round(mean(abort_long$perc),2), '; SD =', round(sd(abort_long$perc),2)))
+```
+
 
 
 ```{r prepare dataset, include = FALSE}
