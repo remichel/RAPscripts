@@ -1,7 +1,7 @@
 ---
 title: "Main - 1 -Mean Absolute Error"
 author: "René Michel"
-date: "August 2020"
+date: "September 2020"
 output: 
   html_document:
     toc: true
@@ -45,7 +45,7 @@ do_save             = T    # T if you want to save files. might overwrite existi
 
 
 ```{r paths, include = FALSE}
-study_path          = 'C:/Data/OSF_public/Main/'
+study_path          = 'D:/OSF/Main/'
 preprocessed_path   = paste0(study_path,'Preprocessed/')
 plot_path           = paste0(study_path,'Plots/')
 if(do_createdirs) create_dirs(preprocessed_path, plot_path) # checks for paths and creates them if missing

@@ -2,7 +2,7 @@ clear
 % -------------------------------------------------------------------------
 % define folders, input and output names
 % -------------------------------------------------------------------------
-study_folder                        = 'C:\Data\OSF_public\Pilot';
+study_folder                        = 'D:\OSF\Pilot';
 memtoolbox_folder                   = [study_folder '/visionlab-MemToolbox-fea8609'];
 
 loadfolder_suffix                   = 'Preprocessed';

@@ -1,7 +1,7 @@
 ---
 title: "Main - 3 - Validity Analysis"
 author: "René Michel"
-date: "August 2020"
+date: "September 2020"
 output: 
   html_document:
     toc: true
@@ -46,7 +46,7 @@ do_save             = T    # T if you want to save files. might overwrite existi
 
 
 ```{r paths, include = FALSE}
-study_path          = 'C:/Data/OSF_public/Main/'
+study_path          = 'D:/OSF/Main/'
 preprocessed_path   = paste0(study_path,'Preprocessed/')
 mm_out_path         = paste0(study_path,'MM_Out/') 
 plot_path           = paste0(study_path,'Plots/')

@@ -1,7 +1,7 @@
 ---
 title: "Main - 0 - Preprocessing"
 author: "René Michel"
-date: "August 2020"
+date: "September 2020"
 output: 
   html_document:
     toc: true
@@ -44,18 +44,18 @@ You can find all specifications for the applied preprocessing below.
 subject_list        = c(1:10,12:15)
 session_list        = c(1:9)
 n_soas              = 20
-n_perm              = 10  # number of permutations
+n_perm              = 10000# number of permutations
 do_setseed          = T    # set to T if you want to reproduce the findings
 do_createdirs       = T    # if T, script checks for directories and creates them if necessary
 do_save             = T    # T if you want to save files. might overwrite existing datafiles
-do_mm               = T    # export matlab files for mixture model analysis?
+do_mm               = F    # export matlab files for mixture model analysis?
 do_withinval        = T    # preproc for analysis by validity (valid vs invalid)
 do_acrossval        = T    # preproc for analysis across validity (merge valid and invalid) 
 exclude_1st_session = T    # exclude practice session? 
 ```
 
 ```{r paths, include = FALSE}
-study_path          = 'Z:/René/RATES/OSF_public/Main/'
+study_path          = 'D:/OSF/Main/'
 data_path           = paste0(study_path,'Logfiles/')
 plot_path           = paste0(study_path,'Plots/')
 subject_paths       = paste0(data_path,subject_list,'/')

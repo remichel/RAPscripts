@@ -2,10 +2,10 @@ clear
 % -------------------------------------------------------------------------
 % define folders, input and output names
 % -------------------------------------------------------------------------
-study_folder                        = 'Z:\René\RATES\RAP_OSF';
+study_folder                        = 'D:\OSF\Main';
 memtoolbox_folder                   = [study_folder '/visionlab-MemToolbox-fea8609'];
 loadfolder_suffix                   = 'Preprocessed';
-outfolder_suffix                    = 'MM_Out_Home';
+outfolder_suffix                    = 'MM_Out';
 
 infile_name_mm                      = '%s%i_mm_data.mat';
 infile_name_mm_acrossval            = '%s%i_mm_data_acrossval.mat';
@@ -28,8 +28,8 @@ end
 % -------------------------------------------------------------------------
 % Params
 % -------------------------------------------------------------------------
-subject_list    = 14:15; %[1:10 12:15];
-do_observed     = 0;
+subject_list    = [1:10 12:15];
+do_observed     = 1;
 do_perm         = 1;
 nperm           = 10000;
 conditions      = {'validity', 'across_val'}; 

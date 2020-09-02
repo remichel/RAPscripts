@@ -1,7 +1,7 @@
 ---
 title: "Pilot 2- Absolute Error & MM"
 author: "René Michel"
-date: "August 2020"
+date: "September 2020"
 output: 
   html_document:
     toc: true
@@ -49,7 +49,7 @@ do_save             = T    # T if you want to save files. might overwrite existi
 ```
 
 ```{r paths, include = FALSE}
-study_path          = 'Z:/René/RATES/OSF_public/Pilot/'
+study_path          = 'D:/OSF/Pilot/'
 mm_out_path         = paste0(study_path,'MM_Out/')
 plot_path           = paste0(study_path,'Plots/')
 preprocessed_path   = paste0(study_path,'Preprocessed/')
@@ -57,7 +57,7 @@ if(do_createdirs) create_dirs(plot_path) # checks for paths and creates them if 
 ```
 
 ```{r helperfuns, include = F}
-help_fun_path       = 'C:/Users/rmich/Buschlab/sortRAPcode/helper_funs/' 
+help_fun_path       = 'D:/RAPscripts/helper_funs/' 
 helper_functions = paste0(help_fun_path, list.files(help_fun_path))
 sapply(helper_functions, source)
 ```
