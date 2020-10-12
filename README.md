@@ -2,7 +2,7 @@
 # Reproduce RAP Results Pipeline
 
 
-This repository contains all analysis scripts to reproduce the reported findings and figures. The corresponding data is stored at [the corresponding OSF repository](https://osf.io/de4bu/). 
+This repository contains all analysis scripts to reproduce the reported findings and figures. The corresponding data is stored at the corresponding OSF repository. 
 
 
 ## General structure 
@@ -57,7 +57,7 @@ nickname        Action of the Toes
 ### 2. Get the data
 
 
-Please make sure that you download the data from [OSF](https://osf.io/de4bu/).
+Please make sure that you download the data from OSF.
 
 
 ### 3. Download MemToolbox & helper functions
