@@ -1,16 +1,16 @@
 
-# Reproduce RAP Results Pipeline
+# Reproduce results from Michel, Dugué & Busch (2021). Distinct contributions of alpha and theta rhythms to perceptual and attentional sampling
 
 
-This repository contains all analysis scripts to reproduce the reported findings and figures. The corresponding data is stored at the corresponding OSF repository. 
+This repository contains all analysis scripts to reproduce the reported findings and figures from [Michel, Dugué & Busch (2021). Distinct contributions of alpha and theta rhythms to perceptual and attentional sampling](DOI). The corresponding data is stored at the corresponding [OSF repository](https://osf.io/de4bu/).
 
 
-## General structure 
+## General structure
 
 
-The analysis pipelines are separated for the pilot and main study, indicated by the prefix `RAP_Pilot_` or `RAP_Main_`. 
+The analysis pipelines are separated for the pilot and main study, indicated by the prefix `RAP_Pilot_` or `RAP_Main_`.
 
-Moreover, the scripts are enumerated to ensure the correct order of analysis steps. Nonetheless, note that you can also access a single analysis step directly (e.g. `RAP_Main_4_`) and execute it without running all preceding steps before, because the data folder also contains intermediate data. 
+Moreover, the scripts are enumerated to ensure the correct order of analysis steps. Nonetheless, note that you can also access a single analysis step directly (e.g. `RAP_Main_4_`) and execute it without running all preceding steps before, because the data folder also contains intermediate data.
 
 By default, running an analysis step will overwrite the presaved data. In each script, you can therefore change output folders.
 
@@ -41,7 +41,7 @@ platform        x86_64-w64-mingw32
 arch	        x86_64
 os              mingw32
 system	        x86_64, mingw32
-status	
+status
 major	        3
 minor	        6.1
 year	        2019
@@ -57,7 +57,7 @@ nickname        Action of the Toes
 ### 2. Get the data
 
 
-Please make sure that you download the data from OSF.
+Please make sure that you download the data from [OSF repository](https://osf.io/de4bu/).
 
 
 ### 3. Download MemToolbox & helper functions
@@ -69,10 +69,10 @@ Download [MemToolbox](http://visionlab.github.io/MemToolbox/) if necessary. If y
 ### 4. Change paths
 
 
-In R scripts, please change `study_path = '...'` (always in the 4th code chunk) according to your download folder. For script `RAP_Pilot_2`, please also specify `help_fun_path = "..."` and set it to the folder in which you have downloaded it. 
+In R scripts, please change `study_path = '...'` (always in the 4th code chunk) according to your download folder. For script `RAP_Pilot_2`, please also specify `help_fun_path = "..."` and set it to the folder in which you have downloaded it.
 
 
-In Matlab scripts, please adjust `study_folder = "..."` and `memtoolbox_folder = "..." ` accordingly. You can always find it in the first lines of code. 
+In Matlab scripts, please adjust `study_folder = "..."` and `memtoolbox_folder = "..." ` accordingly. You can always find it in the first lines of code.
 
 
 ### 5. Automatic installations
@@ -87,9 +87,9 @@ In R, you don't need to download or install packages by hand, as the first lines
 if(!("devtools" %in% installed.packages()[,"Package"])) install.packages('devtools')
 library('devtools')
 # will install required dependencies for RAP analysis
-devtools::install_github('remichel/envRAP') 
+devtools::install_github('remichel/envRAP')
 # initialize all required packages
-rmTools::libraries(ggplot2, reshape2, pracma, Rmisc, circular, scales, R.matlab, dplyr, stats, lattice, car, rmTools, knitr, kableExtra) 
+rmTools::libraries(ggplot2, reshape2, pracma, Rmisc, circular, scales, R.matlab, dplyr, stats, lattice, car, rmTools, knitr, kableExtra)
 ```
 
 
@@ -108,13 +108,12 @@ do_createdirs       = T     # if T, script checks for directories and creates th
 do_save             = T     # T if you want to save files. might overwrite existing datafiles
 do_mm               = T     # export matlab files for mixture model analysis?
 do_withinval        = T     # preproc for analysis by validity (valid vs invalid)
-do_acrossval        = T     # preproc for analysis across validity (merge valid and invalid) 
-exclude_1st_session = T     # exclude practice session? 
+do_acrossval        = T     # preproc for analysis across validity (merge valid and invalid)
+exclude_1st_session = T     # exclude practice session?
 ```
 
 
 ### 7. Start
 
 
-Now you should be able to start. If you encounter any kind of problem, feel free to contact @remichel for help.
-
+Now you should be able to start. If you encounter any kind of problem, please contact r.michel@wwu.de for help.
