@@ -1,7 +1,7 @@
 ---
 title: "Main - 6.2 - FFT Analysis Phase AcrossVal"
 author: "René Michel"
-date: "September 2020"
+date: "February 2021"
 output: 
   html_document:
     toc: true
@@ -65,8 +65,7 @@ study_path          = 'D:/OSF/Main/'
 preprocessed_path   = paste0(study_path,'Preprocessed/') 
 mm_out_path         = paste0(study_path,'MM_Out/') 
 fft_out_path        = paste0(study_path,'FFT_Out/')  
-plot_path           = paste0(study_path,'Plots/')
-if(do_createdirs) create_dirs(fft_out_path, plot_path) # checks for paths and creates them if missing
+if(do_createdirs) create_dirs(fft_out_path) # checks for paths and creates them if missing
 ```
 
 
@@ -161,8 +160,7 @@ phase_long$freq = round(fac2num(phase_long$freq),1)
 
 # specify which conditions shall be tested
 
-testlist = list(freq = c(4.8),
-     m = c("g"))
+testlist = list(freq = c(4.8),m = c("g"))
 
 for(i in 1:length(testlist[[1]])){
   data = phase_long[phase_long$freq == testlist$freq[i] &
@@ -176,60 +174,3 @@ for(i in 1:length(testlist[[1]])){
 
 ```
 
-## Phase Plot 
-
-g, 4.8 Hz
-
-```{r phase plot, echo = F, out.width = '100%'}
-
-# subset data
-data = phase_long[phase_long$freq == 4.8 & phase_long$var == "g",]
-
-# compute phase in radians + degrees for plot
-data$phase  = circular(data$phase, unit = "radians")
-data$deg    = conversion.circular(data$phase, units = "degrees")
-
-# prepare plot
-nBins   = 30
-breaks  = seq(-180, 170, by = 45)
-labels  = c(seq(180, 350, by = 45), seq(0, 170, by = 45))
-
-
-roseplot = ggplot(data, aes(x = deg)) +
-    geom_vline(xintercept = breaks, color = "grey80", size = 1) + 
-    geom_hline(yintercept = c(1,2,3), color = "grey80", size = 0.5)+
-    geom_hline(yintercept = 3.2, color = "black", size = 1.5)+ # grid
-  
-    geom_segment(x = mean.circular(data$deg), xend = mean.circular(data$deg), 
-               y = 0, yend = 2.8, 
-               color = "grey40", size = 7, arrow = arrow(length = unit(1.5, "cm")))+  # arrow
-    geom_histogram(binwidth = 360/nBins, 
-                 color = "black", fill = "grey70", size = 1.2)+ # hist
-  
-    scale_x_continuous(breaks = breaks, labels = labels,expand = c(.002,0))+
-    coord_polar(start = pi-pi/nBins)+
-    ylab(NULL)+
-    xlab(NULL)+
-    theme_minimal()
-    
-roseplot
-
-```
-  
-
-
-
-```{r save plot, include = F}
-roseplot + theme(axis.line = element_blank(),
-        axis.ticks.y = element_blank(),
-        axis.title.y = element_text(size = 34,face = 'bold'),
-        axis.title.x = element_text(size = 28,face = 'bold',vjust = -0.5),
-        axis.text.y = element_blank(),
-        axis.text.x = element_text(size = 24,face = 'bold', colour = "black"),
-        panel.grid = element_blank(),
-        legend.position = "none",
-        plot.margin = unit(c(.5,.5,.5,.5), unit = "cm"))
-
-if(do_save) ggsave(filename = paste0(plot_path,'main_mm_g_phase_roseplot_acrossval.png'), device = "png", height = 30, width = 30, units = "cm")
-if(do_save) ggsave(filename = paste0(plot_path,'main_mm_g_phase_roseplot_acrossval.pdf'), device = "pdf", height = 30, width = 30, units = "cm")
-```

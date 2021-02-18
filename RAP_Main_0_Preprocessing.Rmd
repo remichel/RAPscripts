@@ -1,7 +1,7 @@
 ---
 title: "Main - 0 - Preprocessing"
 author: "René Michel"
-date: "September 2020"
+date: "February 2021"
 output: 
   html_document:
     toc: true
@@ -153,8 +153,8 @@ data$rtms             = data$rt*1000
 
 # compute error values
 data$error   = as.numeric(data$target_degree)-as.numeric(data$reported_degree) # calculate raw error [-360, 360]
-data$error   = ifelse(data$error > 180, 360-data$error,
-                      ifelse(data$error < -180, -360-data$error, 
+data$error   = ifelse(data$error > 180, -360+data$error,
+                      ifelse(data$error < -180, 360+data$error, 
                              data$error)) # recode errors > 180 / <-180 to get error values in [-180, 180]
 data$abserr           = abs(data$error) # recode to absolute values
 data$correct_90 = ifelse(data$abserr < 90, 1, 0) # dichotomize absolute errors into hits/misses to check whether QUEST was successful
