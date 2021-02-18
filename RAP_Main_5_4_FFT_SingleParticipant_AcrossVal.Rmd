@@ -66,7 +66,7 @@ study_path          = 'D:/OSF/Main/'
 preprocessed_path   = paste0(study_path,'Preprocessed/') 
 mm_out_path         = paste0(study_path,'MM_Out/') 
 plot_path           = paste0(study_path,'Plots/')
-if(do_createdirs) create_dirs(fft_out_path, plot_path) # checks for paths and creates them if missing
+if(do_createdirs) create_dirs(plot_path) # checks for paths and creates them if missing
 ```
 
 
