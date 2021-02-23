@@ -1,11 +1,11 @@
 
-# Reproduce results from Michel, Dugué & Busch (2021). Distinct contributions of alpha and theta rhythms to perceptual and attentional sampling
+## Reproduce results from [Michel, Dugué & Busch (2021). Distinct contributions of alpha and theta rhythms to perceptual and attentional sampling](https://doi.org/10.1111/ejn.15154)
 
 
-This repository contains all analysis scripts to reproduce the reported findings and figures from [Michel, Dugué & Busch (2021). Distinct contributions of alpha and theta rhythms to perceptual and attentional sampling](DOI). The corresponding data is stored at the corresponding [OSF repository](https://osf.io/de4bu/).
+This repository contains all analysis scripts to reproduce the reported findings and figures from [Michel, Dugué & Busch (2021). Distinct contributions of alpha and theta rhythms to perceptual and attentional sampling](https://doi.org/10.1111/ejn.15154). The corresponding data is stored at the corresponding [OSF repository](https://osf.io/de4bu/).
 
 
-## General structure
+### General structure
 
 
 The analysis pipelines are separated for the pilot and main study, indicated by the prefix `RAP_Pilot_` or `RAP_Main_`.
@@ -15,14 +15,14 @@ Moreover, the scripts are enumerated to ensure the correct order of analysis ste
 By default, running an analysis step will overwrite the presaved data. In each script, you can therefore change output folders.
 
 
-## Step by step: What do I need to do before I can start?
+### Step by step: What do I need to do before I can start?
 
 
 
-### 1. Check general requirements
+#### 1. Check general requirements
 
 
-#### 1.1. Matlab
+##### 1.1. Matlab
 
 *Matlab R2020a*
 
@@ -32,7 +32,7 @@ Operating System: Linux 4.4.0-186-generic #216-Ubuntu SMP Wed Jul 1 05:34:05 UTC
 Java Version: Java 1.8.0_202-b08 with Oracle Corporation Java HotSpot(TM) 64-Bit Server VM mixed mode
 ```
 
-#### 1.2. R
+##### 1.2. R
 
 *R 3.6.1* & *RStudio 1.2.1335*
 
@@ -54,13 +54,13 @@ nickname        Action of the Toes
 ```
 
 
-### 2. Get the data
+#### 2. Get the data
 
 
 Please make sure that you download the data from [OSF repository](https://osf.io/de4bu/).
 
 
-### 3. Download MemToolbox & helper functions
+#### 3. Download MemToolbox & helper functions
 
 
 Download [MemToolbox](http://visionlab.github.io/MemToolbox/) if necessary. If you haven't done yet, please download at least the `helper_fun` folder in this repository.
@@ -75,7 +75,7 @@ In R scripts, please change `study_path = '...'` (always in the 4th code chunk) 
 In Matlab scripts, please adjust `study_folder = "..."` and `memtoolbox_folder = "..." ` accordingly. You can always find it in the first lines of code.
 
 
-### 5. Automatic installations
+#### 5. Automatic installations
 
 
 In R, you don't need to download or install packages by hand, as the first lines of code will do this for you automatically. Hence, by default there will be an installation of the package `devtools`, which is required to install the packages `rmTools`(contains some required custom functions) and `envRAP`(installs all dependencies required for the RAP analyses).
@@ -93,7 +93,7 @@ rmTools::libraries(ggplot2, reshape2, pracma, Rmisc, circular, scales, R.matlab,
 ```
 
 
-### 6. Adjust specifications
+#### 6. Adjust specifications
 
 
 Before running a script, you can adjust the specifications in the 3rd code chunk of each R script (or the first lines of code in Matlab scripts). See an example for an R script specification chunk below:
@@ -113,7 +113,7 @@ exclude_1st_session = T     # exclude practice session?
 ```
 
 
-### 7. Start
+#### 7. Start
 
 
 Now you should be able to start. If you encounter any kind of problem, please contact r.michel@wwu.de for help.
